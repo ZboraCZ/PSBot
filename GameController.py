@@ -132,5 +132,5 @@ class GameController(threading.Thread):
         if okay_button:
             self.performing_action = True
             gui.leftClick(okay_button)
-            self.performing_act2
+            self.performing_action
 
