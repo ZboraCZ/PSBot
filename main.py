@@ -27,6 +27,9 @@ aggressive_enemies_list = list()
 
 load_step = 1
 still_comment = True
+
+print("Bot starting up: 20 seconds.")
+
 try:
     with open('map_settings.txt') as f:
         for line in f:
@@ -75,6 +78,8 @@ try:
 except IndexError:
     print("Blank lines in map_settings.txt")
 
+
+time.sleep(20)
 
 #Game_Controller = GameController()
 
