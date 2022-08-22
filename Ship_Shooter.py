@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from PIL import Image
 import pytesseract
 from pytesseract import Output
-from timeit import default_timer as timer2222222
+from timeit import default_timer as timer
 import re
 import mss
 from GameController import GameController
