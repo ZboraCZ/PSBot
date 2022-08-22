@@ -1,0 +1,19 @@
+PSBot Notes
+Resolution: 1366 x 768
+
+furthest left: Point(x=199, y=236) time to get - approx. 4s
+calc wait time to loot (sec): abs(199 - 640) + abs(236 - 405) * 0.0049
+610*x = 3
+
+Execution times:
+m
+EasyOCR:
+Execution time (s): 3.7159842000037315
+Execution time (s): 3.72984649999853
+Execution time (s): 3.765789800003404
+Execution time (s): 3.722388599999249
+
+
+Pytesseract:
+
+

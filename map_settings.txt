@@ -1,0 +1,15 @@
+#####This file settings need to be changed for the specific map
+### Enemies list (leave empty fields if less than 5 )
+EnemyName1=Thrym's Henchman
+EnemyName2=Bottom Crawler
+EnemyName3=
+EnemyName4=
+EnemyName5=
+### Quest Enemies List
+QuestEnemy1=
+QuestEnemy2=
+QuestEnemy3=
+### Aggressive enemies List
+AggressiveEnemy1=Abyss Pirate
+AggressiveEnemy2=
+AggressiveEnemy3=
