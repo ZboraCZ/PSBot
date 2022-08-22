@@ -26,11 +26,11 @@ class GameController(threading.Thread):
         print("Thread name: " + str(self.thread_name) + "  " + "Thread id: " + str(self.thread_ID));
         # We can't sleep at startup program
         while not self.game_exited:
-            self.check_health()
+            #self.check_health()
             self.check_ammo()
             self.check_respawn()
             self.check_miscellaneous()
-            time.sleep(10)
+            time.sleep(30)
 
     #def start(self):
 
@@ -105,13 +105,9 @@ class GameController(threading.Thread):
         self.performing_action = False
 
     def check_respawn(self):
-        restore_icon = gui.locateCenterOnScreen(img_dir + "restore_ship_icon.png")
+        restore_icon = gui.locateCenterOnScreen(img_dir + "restore_ship_icon.png", confidence=0.8)
         if restore_icon:
             self.performing_action = True
-
-            gui.moveTo(restore_icon.x, restore_icon.y)
-            time.sleep(2)
-
             gui.moveTo(restore_icon.x, restore_icon.y + 82)
             gui.leftClick()
             time.sleep(5)
