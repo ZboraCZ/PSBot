@@ -55,12 +55,15 @@ class ShipShooter:
         return True
 
     def prepare_screen_data(self):
+        time_start = time.time()
         monitor = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
         self.screen_image = numpy.asarray(mss.mss().grab(monitor))
         self.found_data_dict = pytesseract.image_to_data(self.screen_image, output_type=Output.DICT)
         # If ever you go with just snipping the name labels from game: # enemy_location = pyautogui.locateCenterOnScreen(img_dir + "abyss_pirate_label.png", confidence=0.5)
         # plt.imshow(image)
         # plt.show()
+        time_end = time.time()
+        print("Screen and detect time (s): "+ str(time_end - time_start))
 
 
     def execute_fight(self, last_enemy_location=None):
@@ -69,6 +72,7 @@ class ShipShooter:
         # Agrresive enemies - get rid of all
         enemy_location = self.get_enemy_from_screen(self.aggr_enemies_split_list)
         while enemy_location:
+            print("Aggressive enemy found")
             self.focus_on_enemy(enemy_location, self.aggr_enemies_split_list)
             aggressive_fought = True
             enemy_location = self.get_enemy_from_screen(self.aggr_enemies_split_list)
