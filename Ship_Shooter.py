@@ -134,7 +134,7 @@ class ShipShooter(threading.Thread):
 
 
     def shoot(self, enemy_location):
-        center_x = enemy_location.x + 70
+        center_x = enemy_location.x + 50
         center_y = enemy_location.y + 37
 
         if self.is_valid_click_location(center_x, center_y):
