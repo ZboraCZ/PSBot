@@ -2,34 +2,47 @@ import pyautogui
 import time
 import threading
 import concurrent.futures
-from GameController import GameController
+#from GameController import GameController
 
 gui = pyautogui
 img_dir = 'img/'
-game_screen_center_location = gui.Point(x=640, y=405)
+game_screen_center_location = gui.Point(x=683, y=384)
 game_screen_furthest_location = gui.Point(x=1280, y=768)
 
 
-class Looter:
+class Looter(threading.Thread):
 
-    def __init__(self, game_controller_obj):
+    def __init__(self, thread_name, thread_ID, game_controller_obj):
+        threading.Thread.__init__(self)
+        self.thread_name = thread_name
+        self.thread_ID = thread_ID
         self.GameController = game_controller_obj
 
+    # Overrriding of run() method in the subclass
+    def run(self):
+        print("Thread name: " + str(self.thread_name) + "  " + "Thread id: " + str(self.thread_ID));
+        # We can't sleep at startup program
+        while not self.GameController.game_exited:
+            self.loot()
+
     def loot(self):
-        return self.locate_loot()
+        self.locate_loot()
 
 
     def locate_loot(self):
         chest_location = self.find_chest()
         if chest_location is not None:
-
-            self.GameController.check_wait_performing_action()
+            self.GameController.is_looting = True
+            if self.GameController.is_fighting or self.GameController.is_refilling:
+                return
 
             pyautogui.leftClick(chest_location)
             time.sleep(self.calculate_travel_wait_time(chest_location))
-            return True
+
+            return
         else:
-            return False
+            self.GameController.is_looting = False
+            return
 
     def find_chest(self):
         locs_list1 = pyautogui.locateAllOnScreen(img_dir + "LootBox1.png", confidence=0.7)

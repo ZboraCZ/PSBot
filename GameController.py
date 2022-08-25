@@ -1,67 +1,80 @@
 import pyautogui
 import time
 import threading
-from LifeKeeper import LifeKeeper
+
+from Ship_Shooter import ShipShooter
+from Looter import Looter
+from Mover import Mover
+from ExitWaiter import ExitWaiter
+
 
 gui = pyautogui
 img_dir = 'img/'
-game_screen_center_location = gui.Point(x=640, y=405)
+game_screen_center_location = gui.Point(x=683, y=384)
 game_screen_furthest_location = gui.Point(x=1280, y=768)
 
 
-class GameController(threading.Thread):
+class GameController():
 
-    performing_action = False
-
-    def __init__(self, thread_name, thread_ID, Life_Keeper):
-        threading.Thread.__init__(self)
-        self.thread_name = thread_name
-        self.thread_ID = thread_ID
-        self.Life_Keeper = Life_Keeper
+    def __init__(self):
         self.performing_action = False
+        self.is_fighting = False
+        self.is_looting = False
+        self.is_refilling = False
         self.game_exited = False
 
-    # Overrriding of run() method in the subclass
+        self.Ship_Shooter_Thread = ShipShooter("Ship_Shooter_Thread", 1, self)
+        self.Looter_Thread = Looter("Looter_Thread", 2, self)
+        self.Mover_Thread = Mover("Mover_Thread", 3, self)
+        self.Exit_Waiter = ExitWaiter("Exit_Waiter_Thread", 4, self)
+
+
     def run(self):
-        print("Thread name: " + str(self.thread_name) + "  " + "Thread id: " + str(self.thread_ID));
         # We can't sleep at startup program
+        self.Ship_Shooter_Thread.start()
+        self.Looter_Thread.start()
+        self.Mover_Thread.start()
+        self.Exit_Waiter.start()
         while not self.game_exited:
-            #self.check_health()
             self.check_ammo()
             self.check_respawn()
             self.check_miscellaneous()
-            time.sleep(30)
+            time.sleep(10)
 
-    #def start(self):
+        self.Exit_Waiter.join()
+        self.Mover_Thread.join()
+        self.Looter_Thread.join()
+        self.Ship_Shooter_Thread.join()
+
 
     def check_ammo(self):
         # 2K cannonballs left
         cannon_balls_location1 = gui.locateCenterOnScreen(img_dir + "cannonballs_icon_2K.png")
         if cannon_balls_location1:
-            self.performing_action = True
+            self.is_refilling = True
             self.refill_cannonballs(cannon_balls_location1)
-            self.performing_action = False
+            self.is_refilling = False
 
         # 1K cannonballs left
         cannon_balls_location2 = gui.locateCenterOnScreen(img_dir + "cannonballs_icon_1K.png")
         if cannon_balls_location2:
-            self.performing_action = True
+            self.is_refilling = True
             self.refill_cannonballs(cannon_balls_location2)
-            self.performing_action = False
+            self.is_refilling = False
 
         # 2K harpoons left
         harpoons_location1 = gui.locateCenterOnScreen(img_dir + "harpoons_icon_2K.png")
         if harpoons_location1:
-            self.performing_action = True
+            self.is_refilling = True
             self.refill_harpoons(harpoons_location1)
-            self.performing_action = False
+            self.is_refilling = False
 
         # 1K harpoons left
         harpoons_location2 = gui.locateCenterOnScreen(img_dir + "harpoons_icon_1K.png")
         if harpoons_location2:
-            self.performing_action = True
+            self.is_refilling = True
             self.refill_harpoons(harpoons_location2)
-            self.performing_action = False
+            self.is_refilling = False
 
 
     def refill_cannonballs(self, cannonballs_location):
@@ -82,13 +95,9 @@ class GameController(threading.Thread):
         # Close menu
         gui.leftClick(harpoons_location.x, harpoons_location.y)
 
-    def check_wait_performing_action(self):
-        while self.performing_action:
-            continue
-        return
 
     def check_health(self):
-        self.performing_action = True
+        self.is_refilling = True
         locs_list1 = pyautogui.locateAllOnScreen(img_dir+'low_health_indicator.png', confidence=0.7)
         low_health = False
         for location in locs_list1:
@@ -96,41 +105,57 @@ class GameController(threading.Thread):
                 low_health = True
                 break
         if not low_health:
-            self.performing_action = False
+            self.is_refilling = False
             return
 
         # Low health state
         self.Life_Keeper.survive()
 
-        self.performing_action = False
+        self.is_refilling = False
 
     def check_respawn(self):
         restore_icon = gui.locateCenterOnScreen(img_dir + "restore_ship_icon.png", confidence=0.8)
         if restore_icon:
-            self.performing_action = True
+            self.is_refilling = True
             gui.moveTo(restore_icon.x, restore_icon.y + 82)
             gui.leftClick()
             time.sleep(5)
             gui.press('num2')  # Start Repair
             time.sleep(60)
             gui.leftClick(683,510) # SET SAIL button
-            self.performing_action = False
+            self.is_refilling = False
             return True
 
         # Accidentally got into Harbour?
         set_sail_icon = gui.locateCenterOnScreen(img_dir + "set_sail_icon.png")
         if set_sail_icon:
-            self.performing_action = True
+            self.is_refilling = True
             gui.press('num2')  # Start Repair
             time.sleep(30)
             gui.leftClick(set_sail_icon)
-            self.performing_action = False
+            self.is_refilling = False
             return True
 
     def check_miscellaneous(self):
         okay_button = gui.locateCenterOnScreen(img_dir + "okay_icon.png")
         if okay_button:
-            self.performing_action = True
+            self.is_refilling = True
             gui.leftClick(okay_button)
-            self.performing_action
+            self.is_refilling = False
+
+        feed_icons = gui.locateCenterOnScreen(img_dir + "Feed_window_icon.png", confidence=0.9)
+        if feed_icons:
+            self.is_refilling = True
+            gui.moveTo(feed_icons)
+            time.sleep(2)
+            gui.leftClick(26, 631)
+            self.is_refilling = False
+
+        minimap_icons = gui.locateCenterOnScreen(img_dir + "minimap_icons.png", confidence=0.9)
+        if minimap_icons:
+            self.is_refilling = True
+            gui.moveTo(minimap_icons)
+            time.sleep(2)
+            gui.leftClick(1218, 594)
+            self.is_refilling = False
 

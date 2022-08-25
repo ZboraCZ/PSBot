@@ -1,5 +1,6 @@
 import pyautogui
 import time
+import threading
 import numpy
 import mss
 import pytesseract
