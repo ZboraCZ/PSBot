@@ -89,8 +89,6 @@ class ShipShooter(threading.Thread):
         return enemy_location
 
     def execute_aggr_fight(self, enemy_location):
-        print("===========")
-        print("Executing aggr fight")
         self.shoot(enemy_location)
 
         # Check if we still have enemy near last position and continue fighting
@@ -112,7 +110,6 @@ class ShipShooter(threading.Thread):
                 enemy_loc_list = gui.locateAllOnScreen(img_dir + "Aggr_enemy_start_icon.png", confidence=0.9)
                 continue
             else:
-                print("Aggr fight ended")
                 break
 
     def execute_pass_fight(self, enemy_location):
