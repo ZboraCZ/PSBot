@@ -148,7 +148,8 @@ class ShipShooter(threading.Thread):
             self.GameController.is_fighting = True
             enemy_location = self.find_boss_nearby()
             gui.doubleClick(enemy_location)
-            battle_done = self.execute_aggr_fight(enemy_location)
+            if enemy_location:
+                battle_done = self.execute_aggr_fight(enemy_location)
 
         if batteled:
             gui.press('num2')  # Repair
