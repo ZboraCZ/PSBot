@@ -139,7 +139,8 @@ class ShipShooter(threading.Thread):
                     enemy_location = self.locate_aggressive_enemy()
                     if not enemy_location:
                         enemy_location = self.locate_passive_enemy_nearby()
-                        self.shoot(enemy_location)
+                        if enemy_location:
+                            self.shoot(enemy_location)
 
 
     def shoot(self, enemy_location):
