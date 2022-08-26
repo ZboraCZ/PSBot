@@ -125,10 +125,10 @@ class GameController():
         # Accidentally got into Harbour?
         set_sail_icon = gui.locateCenterOnScreen(img_dir + "set_sail_icon.png")
         if set_sail_icon:
+            self.is_refilling = True
             if self.is_restoring:
                 time.wait(60)
                 self.is_restoring = False
-            self.is_refilling = True
             gui.press('num2')  # Start Repair
             time.sleep(30)
 
