@@ -33,11 +33,16 @@ class GameController():
 
 
     def run(self):
-        # We can't sleep at startup program
+        self.check_health()
+        self.check_ammo()
+        self.check_respawn()
+        self.check_miscellaneous()
+
         self.Ship_Shooter_Thread.start()
         self.Looter_Thread.start()
         self.Mover_Thread.start()
         self.Exit_Waiter.start()
+
         while not self.game_exited:
             self.check_health()
             self.check_ammo()
@@ -53,9 +58,11 @@ class GameController():
 
     def check_health(self):
         if not self.need_healing:
-            low_health_loc = gui.locateCenterOnScreen(img_dir + "low_health_indicator.png")
+            low_health_loc = gui.locateCenterOnScreen(img_dir + "low_health_indicator.png", confidence=0.9)
             if low_health_loc:
                 self.need_healing = True
+                pyautogui.keyDown('ctrl')  # hold down the shift key
+                pyautogui.press('num2')
         else:
             high_health_loc = gui.locateCenterOnScreen(img_dir + "high_health_indicator.png")
             if high_health_loc:
@@ -117,7 +124,7 @@ class GameController():
             gui.moveTo(restore_icon.x, restore_icon.y + 82)
             gui.leftClick()
             time.sleep(10)
-            gui.press('num2')  # Start Repair
+            gui.leftClick(545,745)  # Start Repair
             time.sleep(60)
             gui.leftClick(683,510) # SET SAIL button
             self.is_refilling = False
@@ -132,6 +139,9 @@ class GameController():
                 self.is_restoring = False
             gui.press('num2')  # Start Repair
             time.sleep(30)
+
+            if self.need_healing:
+                return
 
             gui.leftClick(set_sail_icon)
             self.is_refilling = False

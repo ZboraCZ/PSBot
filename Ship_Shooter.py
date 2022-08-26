@@ -25,6 +25,7 @@ class ShipShooter(threading.Thread):
         self.GameController = game_controller_obj
         self.thread_name = thread_name
         self.thread_ID = thread_ID
+        self.ability_num = 0
 
     # Overrriding of run() method in the subclass
     def run(self):
@@ -195,6 +196,7 @@ class ShipShooter(threading.Thread):
 
     def execute_aggr_fight(self, enemy_location):
         self.shoot(enemy_location)
+        self.use_ability()
 
         # Check if we still have enemy near last position and continue fighting
         enemy_loc_list = gui.locateAllOnScreen(img_dir + "Aggr_enemy_start_icon.png", confidence=0.9)
@@ -274,7 +276,40 @@ class ShipShooter(threading.Thread):
     def time_travel(self, point):
         time.sleep(float(round((abs(point.x - 683) + abs(point.y - 384)) * 0.0045, 3)))
 
+    def use_ability(self):
+        if self.ability_num == 6:
+            self.ability_num = 1
+        else:
+            self.ability_num += 1
+        # Davy Jones - Give damage
+        if self.ability_num == 1:
+            pyautogui.keyDown('ctrl')  # hold down the shift key
+            pyautogui.press('num1')
+            pyautogui.keyUp('ctrl')
+        # Gremlin - dmg per second
+        elif self.ability_num == 2:
+            pyautogui.keyDown('ctrl')  # hold down the shift key
+            pyautogui.press('num3')
+            pyautogui.keyUp('ctrl')
+        # Morgans storm - dmg +7%
+        elif self.ability_num == 3:
+            pyautogui.keyDown('ctrl')  # hold down the shift key
+            pyautogui.press('num4')
+            pyautogui.keyUp('ctrl')
 
+        # Lafities +dmg
+        elif self.ability_num == 4:
+            pyautogui.keyDown('ctrl')  # hold down the shift key
+            pyautogui.press('num5')
+            pyautogui.keyUp('ctrl')
+        # Hawkins - reload -10%
+        elif self.ability_num == 5:
+            pyautogui.keyDown('ctrl')  # hold down the shift key
+            pyautogui.press('num6')
+            pyautogui.keyUp('ctrl')
 
-
-
+        # Sirens Song - dmg sustained -8%
+        elif self.ability_num2 == 6:
+            pyautogui.keyDown('ctrl')  # hold down the shift key
+            pyautogui.press('num9')
+            pyautogui.keyUp('ctrl')
