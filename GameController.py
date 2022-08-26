@@ -23,6 +23,7 @@ class GameController():
         self.is_refilling = False
         self.game_exited = False
         self.last_fought = time.time()
+        self.need_healing = False
 
         self.Ship_Shooter_Thread = ShipShooter("Ship_Shooter_Thread", 1, self)
         self.Looter_Thread = Looter("Looter_Thread", 2, self)
@@ -37,16 +38,27 @@ class GameController():
         self.Mover_Thread.start()
         self.Exit_Waiter.start()
         while not self.game_exited:
+            self.check_health()
             self.check_ammo()
             self.check_respawn()
             self.check_miscellaneous()
-            time.sleep(10)
+            time.sleep(5)
 
         self.Exit_Waiter.join()
         self.Mover_Thread.join()
         self.Looter_Thread.join()
         self.Ship_Shooter_Thread.join()
 
+
+    def check_health(self):
+        if not self.need_healing:
+            low_health_loc = gui.locateCenterOnScreen(img_dir + "low_health_indicator.png")
+            if low_health_loc:
+                self.need_healing = True
+        else:
+            high_health_loc = gui.locateCenterOnScreen(img_dir + "high_health_indicator.png")
+            if high_health_loc:
+                self.need_healing = False
 
     def check_ammo(self):
         # 2K cannonballs left
@@ -96,31 +108,14 @@ class GameController():
         # Close menu
         gui.leftClick(harpoons_location.x, harpoons_location.y)
 
-
-    def check_health(self):
-        self.is_refilling = True
-        locs_list1 = pyautogui.locateAllOnScreen(img_dir+'low_health_indicator.png', confidence=0.7)
-        low_health = False
-        for location in locs_list1:
-            if location.left > 621 and location.top > 325 and location.left < 747 and location.top < 437:
-                low_health = True
-                break
-        if not low_health:
-            self.is_refilling = False
-            return
-
-        # Low health state
-        self.Life_Keeper.survive()
-
-        self.is_refilling = False
-
     def check_respawn(self):
         restore_icon = gui.locateCenterOnScreen(img_dir + "restore_ship_icon.png", confidence=0.8)
         if restore_icon:
+            self.is_restoring = True
             self.is_refilling = True
             gui.moveTo(restore_icon.x, restore_icon.y + 82)
             gui.leftClick()
-            time.sleep(5)
+            time.sleep(10)
             gui.press('num2')  # Start Repair
             time.sleep(60)
             gui.leftClick(683,510) # SET SAIL button
@@ -130,12 +125,16 @@ class GameController():
         # Accidentally got into Harbour?
         set_sail_icon = gui.locateCenterOnScreen(img_dir + "set_sail_icon.png")
         if set_sail_icon:
+            if self.is_restoring:
+                time.wait(60)
+                self.is_restoring = False
             self.is_refilling = True
             gui.press('num2')  # Start Repair
             time.sleep(30)
+
             gui.leftClick(set_sail_icon)
             self.is_refilling = False
-            return True
+
 
     def check_miscellaneous(self):
         okay_button = gui.locateCenterOnScreen(img_dir + "okay_icon.png")
@@ -143,6 +142,10 @@ class GameController():
             self.is_refilling = True
             gui.leftClick(okay_button)
             self.is_refilling = False
+
+        close_button = gui.locateCenterOnScreen(img_dir + "close_button.png")
+        if close_button:
+            gui.leftClick(close_button)
 
         feed_icons = gui.locateCenterOnScreen(img_dir + "Feed_window_icon.png", confidence=0.9)
         if feed_icons:
@@ -160,3 +163,9 @@ class GameController():
             gui.leftClick(1218, 594)
             self.is_refilling = False
 
+        reconnect_button = gui.locateCenterOnScreen(img_dir + "reconnect_button.png", confidence=0.9)
+        if reconnect_button:
+            self.is_refilling = True
+            gui.leftClick(reconnect_button)
+            time.sleep(30)
+            self.is_refilling = False

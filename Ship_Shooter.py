@@ -15,6 +15,7 @@ gui = pyautogui
 img_dir = 'img/'
 game_screen_center_location = gui.Point(x=683, y=384)
 game_screen_furthest_location = gui.Point(x=1280, y=768)
+nearby_coordinates = (395,175, 515, 415)
 
 
 class ShipShooter(threading.Thread):
@@ -33,13 +34,100 @@ class ShipShooter(threading.Thread):
             self.battle()
 
     def battle(self):
+
         if self.GameController.is_refilling:
             return
+
+        # If low health, only kill aggr necessary and just stand still
+        if self.GameController.need_healing:
+
+            batteled = False
+            enemy_location = self.locate_aggressive_enemy_nearby()
+            if enemy_location:
+                self.GameController.is_fighting = True
+                batteled = True
+
+            while enemy_location:
+                battle_done = self.execute_aggr_fight(enemy_location)
+                enemy_location = self.locate_aggressive_enemy_nearby()
+
+            if batteled:
+                gui.press('num2')  # Repair
+                self.GameController.last_fought = time.time()
+                self.GameController.is_fighting = False
+
+            return
+
+        fought_nearby = self.fight_nearby()
+
+        if fought_nearby:
+            return
+
+        fought_far = self.fight_far()
+
+
+    def fight_nearby(self):
+        # Fight aggr enemies
+        batteled = False
+        enemy_location = self.locate_aggressive_enemy_nearby()
+        if enemy_location:
+            self.GameController.is_fighting = True
+            batteled = True
+
+        while enemy_location:
+            battle_done = self.execute_aggr_fight(enemy_location)
+            enemy_location = self.locate_aggressive_enemy_nearby()
+
+        if batteled:
+            gui.press('num2')  # Repair
+            self.GameController.last_fought = time.time()
+            self.GameController.is_fighting = False
+
+        if batteled or self.GameController.is_looting or self.GameController.is_refilling:
+            return True
+
+        # Fight boss
+        enemy_location = self.find_boss_nearby()
+        if enemy_location:
+            batteled = True
+            self.GameController.is_fighting = True
+            gui.doubleClick(enemy_location)
+            battle_done = self.execute_aggr_fight(enemy_location)
+
+        if batteled:
+            gui.press('num2')  # Repair
+            self.GameController.last_fought = time.time()
+            self.GameController.is_fighting = False
+
+        if batteled or self.GameController.is_looting or self.GameController.is_refilling:
+            return True
+
+
+        # Locate and fight passive enemy
+        # Here not while because we fight only once and better check again for things
+        enemy_location = self.locate_passive_enemy_nearby()
+        if enemy_location:
+            batteled = True
+            self.GameController.is_fighting = True
+            self.shoot(enemy_location)
+            battle_done = self.execute_aggr_fight(enemy_location)
+
+        if batteled:
+            gui.press('num2')  # Repair
+            self.GameController.last_fought = time.time()
+            self.GameController.is_fighting = False
+
+        if batteled or self.GameController.is_looting or self.GameController.is_refilling:
+            return True
+
+    def fight_far(self):
+        # Fight aggr enemies
         batteled = False
         enemy_location = self.locate_aggressive_enemy()
         if enemy_location:
             self.GameController.is_fighting = True
             batteled = True
+
         while enemy_location:
             battle_done = self.execute_aggr_fight(enemy_location)
             enemy_location = self.locate_aggressive_enemy()
@@ -50,7 +138,7 @@ class ShipShooter(threading.Thread):
             self.GameController.is_fighting = False
 
         if batteled or self.GameController.is_looting or self.GameController.is_refilling:
-            return
+            return True
 
         # Fight boss
         enemy_location = self.find_boss()
@@ -66,7 +154,7 @@ class ShipShooter(threading.Thread):
             self.GameController.is_fighting = False
 
         if batteled or self.GameController.is_looting or self.GameController.is_refilling:
-            return
+            return True
 
         # Locate and fight passive enemy
         # Here not while because we fight only once and better check again for things
@@ -74,25 +162,35 @@ class ShipShooter(threading.Thread):
         if enemy_location:
             batteled = True
             self.GameController.is_fighting = True
-            battle_done = self.execute_pass_fight(enemy_location)
+            self.shoot(enemy_location)
+            battle_done = self.execute_aggr_fight(enemy_location)
 
         if batteled:
             gui.press('num2')  # Repair
             self.GameController.last_fought = time.time()
             self.GameController.is_fighting = False
 
+        if batteled or self.GameController.is_looting or self.GameController.is_refilling:
+            return True
+
+
+    def locate_aggressive_enemy_nearby(self):
+        enemy_location = gui.locateCenterOnScreen(img_dir + "Aggr_enemy_start_icon.png", region=nearby_coordinates, confidence=0.9)
+        return enemy_location
+
+    def locate_passive_enemy_nearby(self): #910, 590
+        enemy_location = gui.locateCenterOnScreen(img_dir + "Passive_enemy_start_icon.png", region=nearby_coordinates, confidence=0.9)
+        return enemy_location
 
     def locate_aggressive_enemy(self):
         enemy_location = gui.locateCenterOnScreen(img_dir + "Aggr_enemy_start_icon.png", confidence=0.9)
         return enemy_location
 
+
     def locate_passive_enemy(self):
         enemy_location = gui.locateCenterOnScreen(img_dir + "Passive_enemy_start_icon.png", confidence=0.9)
         return enemy_location
 
-    def locate_passive_enemy_nearby(self): #910, 590
-        enemy_location = gui.locateCenterOnScreen(img_dir + "Passive_enemy_start_icon.png", region=(395,175, 515, 415), confidence=0.9)
-        return enemy_location
 
     def execute_aggr_fight(self, enemy_location):
         self.shoot(enemy_location)
@@ -123,11 +221,11 @@ class ShipShooter(threading.Thread):
         gui.leftClick(enemy_location)
         self.time_travel(enemy_location)
         # Now check if he is aggressive because we couldn't determine before
-        enemy_location = self.locate_aggressive_enemy()
+        enemy_location = self.locate_aggressive_enemy_nearby()
         if enemy_location:
             while enemy_location:
                 battle_done = self.execute_aggr_fight(enemy_location)
-                enemy_location = self.locate_aggressive_enemy()
+                enemy_location = self.locate_aggressive_enemy_nearby()
         # No aggressive enemy, shoot passive enemy
         else:
             enemy_location = self.locate_passive_enemy_nearby()
@@ -136,7 +234,7 @@ class ShipShooter(threading.Thread):
                 # Now he became aggressive after shooting, so aggressive fight began
                 while enemy_location:
                     battle_done = self.execute_aggr_fight(enemy_location)
-                    enemy_location = self.locate_aggressive_enemy()
+                    enemy_location = self.locate_aggressive_enemy_nearby()
                     if not enemy_location:
                         enemy_location = self.locate_passive_enemy_nearby()
                         if enemy_location:
@@ -144,21 +242,16 @@ class ShipShooter(threading.Thread):
 
 
     def shoot(self, enemy_location):
-        center_x = enemy_location.x + 70
+        center_x = enemy_location.x + 60
         center_y = enemy_location.y + 37
 
         if self.is_valid_click_location(center_x, center_y):
-            gui.moveTo(center_x, center_y)
             gui.doubleClick(center_x, center_y)
 
 
     def is_valid_click_location(self, x, y):
-        # Battle utils menu
-        if x > 535 and x < 830 and y > 667 and y < 769:
-            return False
-
-        # Battle shortcut utils menu
-        if x > 480 and x < 885 and y > 720 and y < 769:
+        # Bottom Battle utils menu
+        if x > 476 and x < 887 and y > 658 and y < 769:
             return False
 
         return True
@@ -167,6 +260,12 @@ class ShipShooter(threading.Thread):
         boss_location = gui.locateCenterOnScreen(img_dir + "BossLabel.png", confidence=0.7)
         if boss_location:
             gui.leftClick(boss_location)
+            return gui.Point(boss_location.x, boss_location.y + 60)
+        return None
+
+    def find_boss_nearby(self):
+        boss_location = gui.locateCenterOnScreen(img_dir + "BossLabel.png", region=nearby_coordinates, confidence=0.7)
+        if boss_location:
             return gui.Point(boss_location.x, boss_location.y + 60)
         return None
 
