@@ -22,6 +22,7 @@ class GameController():
         self.is_looting = False
         self.is_refilling = False
         self.game_exited = False
+        self.last_fought = time.time()
 
         self.Ship_Shooter_Thread = ShipShooter("Ship_Shooter_Thread", 1, self)
         self.Looter_Thread = Looter("Looter_Thread", 2, self)

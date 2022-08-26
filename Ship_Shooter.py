@@ -44,15 +44,15 @@ class ShipShooter(threading.Thread):
             battle_done = self.execute_aggr_fight(enemy_location)
             enemy_location = self.locate_aggressive_enemy()
 
-        self.GameController.is_fighting = False
-
         if batteled:
             gui.press('num2')  # Repair
+            self.GameController.last_fought = time.time()
+            self.GameController.is_fighting = False
 
         if batteled or self.GameController.is_looting or self.GameController.is_refilling:
             return
 
-        # Fight boss2
+        # Fight boss
         enemy_location = self.find_boss()
         if enemy_location:
             batteled = True
@@ -62,6 +62,8 @@ class ShipShooter(threading.Thread):
 
         if batteled:
             gui.press('num2')  # Repair
+            self.GameController.last_fought = time.time()
+            self.GameController.is_fighting = False
 
         if batteled or self.GameController.is_looting or self.GameController.is_refilling:
             return
@@ -76,8 +78,8 @@ class ShipShooter(threading.Thread):
 
         if batteled:
             gui.press('num2')  # Repair
-
-        self.GameController.is_fighting = False
+            self.GameController.last_fought = time.time()
+            self.GameController.is_fighting = False
 
 
     def locate_aggressive_enemy(self):
@@ -86,6 +88,10 @@ class ShipShooter(threading.Thread):
 
     def locate_passive_enemy(self):
         enemy_location = gui.locateCenterOnScreen(img_dir + "Passive_enemy_start_icon.png", confidence=0.9)
+        return enemy_location
+
+    def locate_passive_enemy_nearby(self): #910, 590
+        enemy_location = gui.locateCenterOnScreen(img_dir + "Passive_enemy_start_icon.png", region=(395,175, 515, 415), confidence=0.9)
         return enemy_location
 
     def execute_aggr_fight(self, enemy_location):
@@ -124,17 +130,20 @@ class ShipShooter(threading.Thread):
                 enemy_location = self.locate_aggressive_enemy()
         # No aggressive enemy, shoot passive enemy
         else:
-            enemy_location = self.locate_passive_enemy()
+            enemy_location = self.locate_passive_enemy_nearby()
             if enemy_location:
                 self.shoot(enemy_location)
                 # Now he became aggressive after shooting, so aggressive fight began
                 while enemy_location:
                     battle_done = self.execute_aggr_fight(enemy_location)
                     enemy_location = self.locate_aggressive_enemy()
+                    if not enemy_location:
+                        enemy_location = self.locate_passive_enemy_nearby()
+                        self.shoot(enemy_location)
 
 
     def shoot(self, enemy_location):
-        center_x = enemy_location.x + 50
+        center_x = enemy_location.x + 70
         center_y = enemy_location.y + 37
 
         if self.is_valid_click_location(center_x, center_y):
