@@ -309,7 +309,7 @@ class ShipShooter(threading.Thread):
             pyautogui.keyUp('ctrl')
 
         # Sirens Song - dmg sustained -8%
-        elif self.ability_num2 == 6:
+        elif self.ability_num == 6:
             pyautogui.keyDown('ctrl')  # hold down the shift key
             pyautogui.press('num9')
             pyautogui.keyUp('ctrl')
