@@ -145,6 +145,7 @@ class ShipShooter(threading.Thread):
         if enemy_location:
             batteled = True
             self.GameController.is_fighting = True
+            enemy_location = self.find_boss_nearby()
             gui.doubleClick(enemy_location)
             battle_done = self.execute_aggr_fight(enemy_location)
 
@@ -156,14 +157,14 @@ class ShipShooter(threading.Thread):
         if batteled or self.GameController.is_looting or self.GameController.is_refilling:
             return True
 
-        # Locate and fight passive enemy
+        # Locate and fight passive enemy far away - just get to him and loop again
         # Here not while because we fight only once and better check again for things
         enemy_location = self.locate_passive_enemy()
         if enemy_location:
             batteled = True
             self.GameController.is_fighting = True
-            self.shoot(enemy_location)
-            battle_done = self.execute_aggr_fight(enemy_location)
+            gui.doubleClick(enemy_location)
+            self.time_travel(enemy_location)
 
         if batteled:
             gui.press('num2')  # Repair
