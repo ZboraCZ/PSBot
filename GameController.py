@@ -24,6 +24,7 @@ class GameController():
         self.game_exited = False
         self.last_fought = time.time()
         self.need_healing = False
+        self.is_restoring = False
 
         self.Ship_Shooter_Thread = ShipShooter("Ship_Shooter_Thread", 1, self)
         self.Looter_Thread = Looter("Looter_Thread", 2, self)
