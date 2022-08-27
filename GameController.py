@@ -200,7 +200,7 @@ class GameController():
             self.create_feed_image("hard_disconnect")
             gui.leftClick(play_button)
 
-        s
+
         close_icon_main_menu = gui.locateCenterOnScreen(img_dir + "Close_icon_main.png", confidence=0.9)
         if close_icon_main_menu:
             self.create_feed_image("hard_disconnect_menu_window_opened")
