@@ -27,6 +27,7 @@ class ShipShooter(threading.Thread):
         self.thread_ID = thread_ID
         self.ability_num = 0
         self.healing_movement = "up"
+        self.preventively_moved_while_healing = False
 
     # Overrriding of run() method in the subclass
     def run(self):
@@ -48,6 +49,7 @@ class ShipShooter(threading.Thread):
             if enemy_location:
                 self.GameController.is_fighting = True
                 batteled = True
+                self.preventively_moved_while_healing = False
 
             while enemy_location:
                 battle_done = self.execute_aggr_fight(enemy_location)
@@ -59,15 +61,20 @@ class ShipShooter(threading.Thread):
                 self.GameController.is_fighting = False
             # There can be a enemy hidden in our ship - Move a bit up, next time down
             else:
-                if time.time() - last_fought > 3:
+                if time.time() - self.GameController.last_fought > 3:
+                    if self.preventively_moved_while_healing:
+                        time.sleep(5)
                     if self.healing_movement == "up":
-                        gui.leftClick(game_screen_center_location.x, game_screen_center_location.y - 30)
+                        gui.leftClick(game_screen_center_location.x, game_screen_center_location.y - 50)
                         self.healing_movement = "down"
+                        self.preventively_moved_while_healing = True
                     else:
-                        gui.leftClick(game_screen_center_location.x, game_screen_center_location.y + 30)
+                        gui.leftClick(game_screen_center_location.x, game_screen_center_location.y + 50)
                         self.healing_movement = "up"
+                        self.preventively_moved_while_healing = True
             return
 
+        self.preventively_moved_while_healing = False
         fought_nearby = self.fight_nearby()
 
         if fought_nearby:

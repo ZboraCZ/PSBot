@@ -11,8 +11,6 @@ from ExitWaiter import ExitWaiter
 
 gui = pyautogui
 img_dir = 'img/'
-deaths_dir = 'Log/Deaths/'
-feed_dir = 'Log/Feed/'
 game_screen_center_location = gui.Point(x=683, y=384)
 game_screen_furthest_location = gui.Point(x=1280, y=768)
 
@@ -207,9 +205,9 @@ class GameController():
             gui.leftClick(close_icon_main_menu)
 
     def create_death_image(self):
-        now = datetime.datetime.now()
-        gui.screenshot(deaths_dir + "death-"+ str( unicode(now.replace(microsecond=0)) ) )
+        now = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
+        gui.screenshot("Log\\Deaths\\" + "death-"+ str( now ).replace(":", "-") + ".png" )
 
     def create_feed_image(self, event_keyword):
-        now = datetime.datetime.now()
-        gui.screenshot(feed_dir + str(event_keyword) +"-" + str(unicode(now.replace(microsecond=0))))
+        now = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
+        gui.screenshot("Log\\Feed\\" + str(event_keyword) +"-" + str( now ).replace(":", "-") + ".png" )
