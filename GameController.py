@@ -1,5 +1,6 @@
 import pyautogui
 import time
+import datetime
 import threading
 
 from Ship_Shooter import ShipShooter
@@ -10,6 +11,8 @@ from ExitWaiter import ExitWaiter
 
 gui = pyautogui
 img_dir = 'img/'
+deaths_dir = 'Log/Deaths/'
+feed_dir = 'Log/Feed/'
 game_screen_center_location = gui.Point(x=683, y=384)
 game_screen_furthest_location = gui.Point(x=1280, y=768)
 
@@ -60,9 +63,12 @@ class GameController():
         if not self.need_healing:
             low_health_loc = gui.locateCenterOnScreen(img_dir + "low_health_indicator.png", confidence=0.9)
             if low_health_loc:
+                self.is_refilling = True
                 self.need_healing = True
                 pyautogui.keyDown('ctrl')  # hold down the shift key
                 pyautogui.press('num2')
+                pyautogui.keyUp('ctrl')  # hold down the shift key
+                self.is_refilling = False
         else:
             high_health_loc = gui.locateCenterOnScreen(img_dir + "high_health_indicator.png")
             if high_health_loc:
@@ -121,6 +127,7 @@ class GameController():
         if restore_icon:
             self.is_restoring = True
             self.is_refilling = True
+            self.create_death_image()
             gui.moveTo(restore_icon.x, restore_icon.y + 82)
             gui.leftClick()
             time.sleep(10)
@@ -150,6 +157,7 @@ class GameController():
     def check_miscellaneous(self):
         okay_button = gui.locateCenterOnScreen(img_dir + "okay_icon.png")
         if okay_button:
+            self.create_feed_image("New_achievement_probably")
             self.is_refilling = True
             gui.leftClick(okay_button)
             self.is_refilling = False
@@ -177,6 +185,31 @@ class GameController():
         reconnect_button = gui.locateCenterOnScreen(img_dir + "reconnect_button.png", confidence=0.9)
         if reconnect_button:
             self.is_refilling = True
+            self.create_feed_image("connection_lost")
             gui.leftClick(reconnect_button)
             time.sleep(30)
             self.is_refilling = False
+
+        play_button = gui.locateCenterOnScreen(img_dir + "Play_button_main.png", confidence=0.9)
+        if play_button:
+            self.create_feed_image("hard_disconnect")
+            gui.leftClick(play_button)
+
+        play_button = gui.locateCenterOnScreen(img_dir + "Play_button_main_highlighted.png", confidence=0.9)
+        if play_button:
+            self.create_feed_image("hard_disconnect")
+            gui.leftClick(play_button)
+
+        s
+        close_icon_main_menu = gui.locateCenterOnScreen(img_dir + "Close_icon_main.png", confidence=0.9)
+        if close_icon_main_menu:
+            self.create_feed_image("hard_disconnect_menu_window_opened")
+            gui.leftClick(close_icon_main_menu)
+
+    def create_death_image(self):
+        now = datetime.datetime.now()
+        gui.screenshot(deaths_dir + "death-"+ str( unicode(now.replace(microsecond=0)) ) )
+
+    def create_feed_image(self, event_keyword):
+        now = datetime.datetime.now()
+        gui.screenshot(feed_dir + str(event_keyword) +"-" + str(unicode(now.replace(microsecond=0))))
