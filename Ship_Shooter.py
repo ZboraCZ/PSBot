@@ -26,6 +26,7 @@ class ShipShooter(threading.Thread):
         self.thread_name = thread_name
         self.thread_ID = thread_ID
         self.ability_num = 0
+        self.healing_movement = "up"
 
     # Overrriding of run() method in the subclass
     def run(self):
@@ -56,7 +57,15 @@ class ShipShooter(threading.Thread):
                 gui.press('num2')  # Repair
                 self.GameController.last_fought = time.time()
                 self.GameController.is_fighting = False
-
+            # There can be a enemy hidden in our ship - Move a bit up, next time down
+            else:
+                if time.time() - last_fought > 3:
+                    if self.healing_movement == "up":
+                        gui.leftClick(game_screen_center_location.x, game_screen_center_location.y - 30)
+                        self.healing_movement = "down"
+                    else:
+                        gui.leftClick(game_screen_center_location.x, game_screen_center_location.y + 30)
+                        self.healing_movement = "up"
             return
 
         fought_nearby = self.fight_nearby()
