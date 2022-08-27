@@ -65,11 +65,11 @@ class ShipShooter(threading.Thread):
                     if self.preventively_moved_while_healing:
                         time.sleep(5)
                     if self.healing_movement == "up":
-                        gui.leftClick(game_screen_center_location.x, game_screen_center_location.y - 50)
+                        gui.leftClick(game_screen_center_location.x, game_screen_center_location.y - 40)
                         self.healing_movement = "down"
                         self.preventively_moved_while_healing = True
                     else:
-                        gui.leftClick(game_screen_center_location.x, game_screen_center_location.y + 50)
+                        gui.leftClick(game_screen_center_location.x, game_screen_center_location.y + 80)
                         self.healing_movement = "up"
                         self.preventively_moved_while_healing = True
             return
