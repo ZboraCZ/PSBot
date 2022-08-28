@@ -6,9 +6,9 @@ import concurrent.futures
 
 gui = pyautogui
 img_dir = 'img/'
-game_screen_center_location = gui.Point(x=683, y=384)
-game_screen_furthest_location = gui.Point(x=1280, y=768)
-
+top_gamescreen_first_pixel = 63
+game_screen_center_location = gui.Point(x=683, y=(768/2)+top_gamescreen_first_pixel-1)
+nearby_coordinates = (395,175, 515, 415)
 
 class Looter(threading.Thread):
 
@@ -33,21 +33,22 @@ class Looter(threading.Thread):
         chest_location = self.find_chest()
         if chest_location is not None:
             self.GameController.is_looting = True
-            if self.GameController.need_healing or self.GameController.is_fighting or self.GameController.is_refilling:
+            if self.GameController.is_fighting or self.GameController.is_refilling:
                 return
-
             pyautogui.leftClick(chest_location)
             time.sleep(self.calculate_travel_wait_time(chest_location))
-
-            return
         else:
             self.GameController.is_looting = False
-            return
 
     def find_chest(self):
-        locs_list1 = pyautogui.locateAllOnScreen(img_dir + "LootBox1.png", confidence=0.7)
-        locs_list2 = pyautogui.locateAllOnScreen(img_dir + "LootBox2.png", confidence=0.7)
-        locs_list3 = pyautogui.locateAllOnScreen(img_dir + "LootBox3.png", confidence=0.7)
+        if self.GameController.need_healing:
+            locs_list1 = pyautogui.locateAllOnScreen(img_dir + "LootBox1.png", confidence=0.7, region=nearby_coordinates)
+            locs_list2 = pyautogui.locateAllOnScreen(img_dir + "LootBox2.png", confidence=0.7, region=nearby_coordinates)
+            locs_list3 = pyautogui.locateAllOnScreen(img_dir + "LootBox3.png", confidence=0.7, region=nearby_coordinates)
+        else:
+            locs_list1 = pyautogui.locateAllOnScreen(img_dir + "LootBox1.png", confidence=0.7)
+            locs_list2 = pyautogui.locateAllOnScreen(img_dir + "LootBox2.png", confidence=0.7)
+            locs_list3 = pyautogui.locateAllOnScreen(img_dir + "LootBox3.png", confidence=0.7)
         locs_list_appended = [locs_list1, locs_list2, locs_list3]
 
         min_chest_locations = list()

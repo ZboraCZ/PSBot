@@ -13,9 +13,12 @@ pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/te
 
 gui = pyautogui
 img_dir = 'img/'
-game_screen_center_location = gui.Point(x=683, y=384)
-game_screen_furthest_location = gui.Point(x=1280, y=768)
+top_gamescreen_first_pixel = 46
+game_screen_center_location = gui.Point(x=683, y=410)
 nearby_coordinates = (395,175, 515, 415)
+perfect_shooting_distance = 297 # abs(mine.x - enemy.x) + abs(mine.y - enemy.y)
+perfect_x_dist = 210
+perfect_y_dist = 150
 
 
 class ShipShooter(threading.Thread):
@@ -41,37 +44,9 @@ class ShipShooter(threading.Thread):
         if self.GameController.is_refilling:
             return
 
-        # If low health, only kill aggr necessary and just stand still
+        # If low health, only kill aggr necessary and just stand still if not looting
         if self.GameController.need_healing:
-
-            batteled = False
-            enemy_location = self.locate_aggressive_enemy_nearby()
-            if enemy_location:
-                self.GameController.is_fighting = True
-                batteled = True
-                self.preventively_moved_while_healing = False
-
-            while enemy_location:
-                battle_done = self.execute_aggr_fight(enemy_location)
-                enemy_location = self.locate_aggressive_enemy_nearby()
-
-            if batteled:
-                gui.press('num2')  # Repair
-                self.GameController.last_fought = time.time()
-                self.GameController.is_fighting = False
-            # There can be a enemy hidden in our ship - Move a bit up, next time down
-            else:
-                if time.time() - self.GameController.last_fought > 3:
-                    if self.preventively_moved_while_healing:
-                        time.sleep(5)
-                    if self.healing_movement == "up":
-                        gui.leftClick(game_screen_center_location.x, game_screen_center_location.y - 40)
-                        self.healing_movement = "down"
-                        self.preventively_moved_while_healing = True
-                    else:
-                        gui.leftClick(game_screen_center_location.x, game_screen_center_location.y + 80)
-                        self.healing_movement = "up"
-                        self.preventively_moved_while_healing = True
+            self.fight_in_heal_state()
             return
 
         self.preventively_moved_while_healing = False
@@ -81,6 +56,37 @@ class ShipShooter(threading.Thread):
             return
 
         fought_far = self.fight_far()
+
+
+    def fight_in_heal_state(self):
+        batteled = False
+        enemy_location = self.locate_aggressive_enemy_nearby()
+        if enemy_location:
+            self.GameController.is_fighting = True
+            batteled = True
+            self.preventively_moved_while_healing = False
+
+        while enemy_location:
+            battle_done = self.execute_aggr_fight(enemy_location)
+            enemy_location = self.locate_aggressive_enemy_nearby()
+
+        if batteled:
+            gui.press('num2')  # Repair
+            self.GameController.last_fought = time.time()
+            self.GameController.is_fighting = False
+        # There can be a enemy hidden in our ship - Move a bit up, next time down
+        else:
+            if time.time() - self.GameController.last_fought > 3 and not self.GameController.is_looting:
+                if self.preventively_moved_while_healing:
+                    time.sleep(5)
+                if self.healing_movement == "up":
+                    gui.leftClick(game_screen_center_location.x, game_screen_center_location.y - 210)
+                    self.healing_movement = "down"
+                    self.preventively_moved_while_healing = True
+                else:
+                    gui.leftClick(game_screen_center_location.x, game_screen_center_location.y + 210)
+                    self.healing_movement = "up"
+                    self.preventively_moved_while_healing = True
 
 
     def fight_nearby(self):
@@ -210,10 +216,29 @@ class ShipShooter(threading.Thread):
         enemy_location = gui.locateCenterOnScreen(img_dir + "Passive_enemy_start_icon.png", confidence=0.9)
         return enemy_location
 
+    def keep_distance_from_enemy(self, enemy_location):
+        if enemy_location:
+            enemy_location = self.get_enemy_center_location(enemy_location)
+            # enemy is left, we go right
+            if game_screen_center_location.x - enemy_location.x >= 0:
+                x_loc = game_screen_center_location.x + ( perfect_x_dist - (game_screen_center_location.x - enemy_location.x) )
+            # enemy is right, we go left
+            else:
+                x_loc = game_screen_center_location.x - ( perfect_x_dist + (game_screen_center_location.x - enemy_location.x))
+            # Enemy is up, we go down
+            if game_screen_center_location.y - enemy_location.y >= 0:
+                y_loc = game_screen_center_location.y + ( perfect_y_dist - (game_screen_center_location.y - enemy_location.y))
+            # Enemy is down, we go up
+            else:
+                y_loc = game_screen_center_location.y - ( perfect_y_dist + (game_screen_center_location.y - enemy_location.y))
+
+            travel_location = gui.Point(x_loc, y_loc)
+            gui.leftClick(travel_location)
 
     def execute_aggr_fight(self, enemy_location):
         self.shoot(enemy_location)
         self.use_ability()
+        self.keep_distance_from_enemy(self.get_enemy_center_location(enemy_location))
 
         # Check if we still have enemy near last position and continue fighting
         enemy_loc_list = gui.locateAllOnScreen(img_dir + "Aggr_enemy_start_icon.png", confidence=0.9)
@@ -228,6 +253,7 @@ class ShipShooter(threading.Thread):
                 if ( abs((posX - enemy_location.x)) + abs((posY - enemy_location.y)) ) < 80:
                     enemy_lives = True
                     self.shoot(gui.Point(posX, posY))
+                    self.keep_distance_from_enemy(self.get_enemy_center_location(gui.Point(posX, posY)))
                     break
             if enemy_lives:
                 time.sleep(1)
@@ -260,13 +286,15 @@ class ShipShooter(threading.Thread):
                         if enemy_location:
                             self.shoot(enemy_location)
 
-
     def shoot(self, enemy_location):
-        center_x = enemy_location.x + 60
-        center_y = enemy_location.y + 37
+        center_location = self.get_enemy_center_location(enemy_location)
 
-        if self.is_valid_click_location(center_x, center_y):
-            gui.doubleClick(center_x, center_y)
+        if self.is_valid_click_location(center_location.x, center_location.y):
+            gui.doubleClick(center_location.x, center_location.y)
+
+    def get_enemy_center_location(self, label_location):
+        if label_location:
+            return gui.Point(label_location.x + 60, label_location.y + 37)
 
 
     def is_valid_click_location(self, x, y):
