@@ -8,7 +8,7 @@ from random import randint
 gui = pyautogui
 img_dir = 'img/'
 top_gamescreen_first_pixel = 63
-game_screen_center_location = gui.Point(x=683, y=(768/2)+top_gamescreen_first_pixel-1)
+game_screen_center_location = gui.Point(x=683, y=410)
 seed(1)
 
 

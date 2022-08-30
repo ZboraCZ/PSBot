@@ -7,7 +7,7 @@ import concurrent.futures
 gui = pyautogui
 img_dir = 'img/'
 top_gamescreen_first_pixel = 63
-game_screen_center_location = gui.Point(x=683, y=(768/2)+top_gamescreen_first_pixel-1)
+game_screen_center_location = gui.Point(x=683, y=410)
 nearby_coordinates = (395,175, 515, 415)
 
 class Looter(threading.Thread):

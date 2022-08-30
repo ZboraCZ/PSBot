@@ -12,7 +12,7 @@ from ExitWaiter import ExitWaiter
 gui = pyautogui
 img_dir = 'img/'
 top_gamescreen_first_pixel = 63
-game_screen_center_location = gui.Point(x=683, y=(768/2)+top_gamescreen_first_pixel-1)
+game_screen_center_location = gui.Point(x=683, y=410)
 
 
 class GameController():
@@ -25,7 +25,6 @@ class GameController():
         self.game_exited = False
         self.last_fought = time.time()
         self.need_healing = False
-        self.is_restoring = False
 
         self.Ship_Shooter_Thread = ShipShooter("Ship_Shooter_Thread", 1, self)
         self.Looter_Thread = Looter("Looter_Thread", 2, self)
@@ -49,7 +48,6 @@ class GameController():
             self.check_ammo()
             self.check_respawn()
             self.check_miscellaneous()
-            time.sleep(5)
 
         self.Exit_Waiter.join()
         self.Mover_Thread.join()
@@ -123,34 +121,26 @@ class GameController():
     def check_respawn(self):
         restore_icon = gui.locateCenterOnScreen(img_dir + "restore_ship_icon.png", confidence=0.8)
         if restore_icon:
-            self.is_restoring = True
             self.is_refilling = True
             self.create_death_image()
             gui.moveTo(restore_icon.x, restore_icon.y + 82)
             gui.leftClick()
-            time.sleep(10)
+            time.sleep(5)
             gui.leftClick(545,745)  # Start Repair
-            time.sleep(60)
+            time.sleep(80)
             gui.leftClick(683,510) # SET SAIL button
             self.is_refilling = False
             return True
+
 
         # Accidentally got into Harbour?
         set_sail_icon = gui.locateCenterOnScreen(img_dir + "set_sail_icon.png")
         if set_sail_icon:
             self.is_refilling = True
-            if self.is_restoring:
-                time.sleep(60)
-                self.is_restoring = False
-            gui.press('num2')  # Start Repair
-            time.sleep(30)
-
             if self.need_healing:
                 return
-
             gui.leftClick(set_sail_icon)
             self.is_refilling = False
-
 
     def check_miscellaneous(self):
         okay_button = gui.locateCenterOnScreen(img_dir + "okay_icon.png")
@@ -190,19 +180,47 @@ class GameController():
 
         play_button = gui.locateCenterOnScreen(img_dir + "Play_button_main.png", confidence=0.9)
         if play_button:
+            self.is_refilling = True
             self.create_feed_image("hard_disconnect")
             gui.leftClick(play_button)
+            time.sleep(10)
+            self.is_refilling = False
 
         play_button = gui.locateCenterOnScreen(img_dir + "Play_button_main_highlighted.png", confidence=0.9)
         if play_button:
+            self.is_refilling = True
             self.create_feed_image("hard_disconnect")
             gui.leftClick(play_button)
+            time.sleep(10)
+            self.is_refilling = False
 
-
-        close_icon_main_menu = gui.locateCenterOnScreen(img_dir + "Close_icon_main.png", confidence=0.9)
+        close_icon_main_menu = gui.locate
+        CenterOnScreen(img_dir + "Close_icon_main.png", confidence=0.9)
         if close_icon_main_menu:
+            self.is_refilling = True
+            self.is_refilling = True
             self.create_feed_image("hard_disconnect_menu_window_opened")
             gui.leftClick(close_icon_main_menu)
+            self.is_refilling = False
+
+        auto_logoff_cancel_button = gui.locateCenterOnScreen(img_dir + "cancel_auto_logoff_button.png", confidence=0.9)
+        if auto_logoff_cancel_button:
+            self.is_refilling = True
+            gui.leftClick(auto_logoff_cancel_button)
+            self.is_refilling = False
+
+        session_expired_okay_button = gui.locateCenterOnScreen(img_dir + "session_expired_okay_button.png", confidence=0.9)
+        if session_expired_okay_button:
+            # No is_refilling = False comes, because the Play button must be clicked to start game after login
+            self.is_refilling = True
+            gui.leftClick(session_expired_okay_button)
+            gui.leftClick(21,11) # File menu
+            gui.leftClick(21,35) # Home button
+            gui.leftClick(230,60) # Username Field
+            pyautogui.typewrite('ZboraCZ', interval=0.1)
+            gui.leftClick(340, 60)  # Password Field
+            pyautogui.typewrite('Jirka1997', interval=0.1)
+            gui.leftClick(460, 60)  # LOGIN button
 
     def create_death_image(self):
         now = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
