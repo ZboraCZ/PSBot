@@ -194,8 +194,7 @@ class GameController():
             time.sleep(10)
             self.is_refilling = False
 
-        close_icon_main_menu = gui.locate
-        CenterOnScreen(img_dir + "Close_icon_main.png", confidence=0.9)
+        close_icon_main_menu = gui.locateCenterOnScreen(img_dir + "Close_icon_main.png", confidence=0.9)
         if close_icon_main_menu:
             self.is_refilling = True
             self.is_refilling = True
