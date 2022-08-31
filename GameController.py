@@ -221,6 +221,21 @@ class GameController():
             pyautogui.typewrite('Jirka1997', interval=0.1)
             gui.leftClick(460, 60)  # LOGIN button
 
+        # If we got somehow logouted out of any logic, try to log back in
+        username_input = gui.locateCenterOnScreen(img_dir + "username_input.png", confidence=0.9)
+        if username_input:
+            # No is_refilling = False comes, because the Play button must be clicked to start game after login
+            self.is_refilling = True
+            gui.leftClick(username_input)
+            gui.leftClick(21, 11)  # File menu
+            gui.leftClick(21, 35)  # Home button
+            gui.leftClick(230, 60)  # Username Field
+            pyautogui.typewrite('ZboraCZ', interval=0.1)
+            gui.leftClick(340, 60)  # Password Field
+            pyautogui.typewrite('Jirka1997', interval=0.1)
+            gui.leftClick(460, 60)  # LOGIN button
+
+
     def create_death_image(self):
         now = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
         gui.screenshot("Log\\Deaths\\" + "death-"+ str( now ).replace(":", "-") + ".png" )
