@@ -227,9 +227,6 @@ class GameController():
             # No is_refilling = False comes, because the Play button must be clicked to start game after login
             self.is_refilling = True
             gui.leftClick(username_input)
-            gui.leftClick(21, 11)  # File menu
-            gui.leftClick(21, 35)  # Home button
-            gui.leftClick(230, 60)  # Username Field
             pyautogui.typewrite('ZboraCZ', interval=0.1)
             gui.leftClick(340, 60)  # Password Field
             pyautogui.typewrite('Jirka1997', interval=0.1)
