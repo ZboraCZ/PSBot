@@ -212,7 +212,7 @@ class GameController():
         if session_expired_okay_button:
             # No is_refilling = False comes, because the Play button must be clicked to start game after login
             self.is_refilling = True
-            gui.leftClick(session_expired_okay_button)
+            #gui.leftClick(session_expired_okay_button)
             gui.leftClick(21,11) # File menu
             gui.leftClick(21,35) # Home button
             gui.leftClick(230,60) # Username Field
