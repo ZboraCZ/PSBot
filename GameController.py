@@ -208,7 +208,7 @@ class GameController():
             gui.leftClick(auto_logoff_cancel_button)
             self.is_refilling = False
 
-        session_expired_okay_button = gui.locateCenterOnScreen(img_dir + "session_expired_okay_button.png", confidence=0.9)
+        session_expired_okay_button = gui.locateCenterOnScreen(img_dir + "session_expired_okay_button.png")
         if session_expired_okay_button:
             # No is_refilling = False comes, because the Play button must be clicked to start game after login
             self.is_refilling = True
