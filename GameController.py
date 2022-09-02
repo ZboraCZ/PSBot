@@ -232,6 +232,14 @@ class GameController():
             pyautogui.typewrite('Jirka1997', interval=0.1)
             gui.leftClick(460, 60)  # LOGIN button
 
+        # If we log back in in the morning, Accept daily button must be clicked
+        daily_bonus_btn = gui.locateCenterOnScreen(img_dir + "accept_daily_bonus_btn.png")
+        if daily_bonus_btn:
+            # No is_refilling = False comes, because the Play button must be clicked to start game after login
+            self.is_refilling = True
+            gui.leftClick(daily_bonus_btn)
+            self.is_refilling = False
+
 
     def create_death_image(self):
         now = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
