@@ -16,6 +16,24 @@ def thread_wait():
     end_game = True
     return
 
+def thread_check_finished_auction():
+    pounder_finished_b = False
+    harpoon_finished_b = False
+    while True:
+        pounder_finished = gui.locateCenterOnScreen(img_dir + "pounder_finished.png")
+        if pounder_finished:
+            pounder_finished_b = True
+
+        harpoon_finished = gui.locateCenterOnScreen(img_dir + "harpoon_finished.png")
+        if harpoon_finished:
+            harpoon_finished_b = True
+
+        global end_game
+        if pounder_finished_b and harpoon_finished_b:
+            end_game = True
+            gui.press("esc")
+            return
+
 # Create a Thread with a function without any arguments
 th = threading.Thread(target=thread_wait)
 th.start()
