@@ -25,6 +25,7 @@ class GameController():
         self.game_exited = False
         self.last_fought = time.time()
         self.need_healing = False
+        self.time_respawned = time.time()
 
         self.Ship_Shooter_Thread = ShipShooter("Ship_Shooter_Thread", 1, self)
         self.Looter_Thread = Looter("Looter_Thread", 2, self)
@@ -122,6 +123,7 @@ class GameController():
         restore_icon = gui.locateCenterOnScreen(img_dir + "restore_ship_icon.png", confidence=0.8)
         if restore_icon:
             self.is_refilling = True
+            self.time_respawned = time.time()
             self.create_death_image()
             gui.moveTo(restore_icon.x, restore_icon.y + 82)
             gui.leftClick()
@@ -132,13 +134,12 @@ class GameController():
             self.is_refilling = False
             return True
 
-
         # Accidentally got into Harbour?
         set_sail_icon = gui.locateCenterOnScreen(img_dir + "set_sail_icon.png")
         if set_sail_icon:
             self.is_refilling = True
-            if self.need_healing:
-                return
+            if time.time() - self.time_respawned <= 80 and self.need_healing:
+                time.sleep(30)
             gui.leftClick(set_sail_icon)
             self.is_refilling = False
 
@@ -220,6 +221,17 @@ class GameController():
             gui.leftClick(340, 60)  # Password Field
             pyautogui.typewrite('Jirka1997', interval=0.1)
             gui.leftClick(460, 60)  # LOGIN button
+
+        # Game logouted and GUI is switched to Czech for some reason, so switch to english
+        czech_lang_input_logouted = gui.locateCenterOnScreen(img_dir + "czech_lang_input.png")
+        if czech_lang_input_logouted:
+            # No is_refilling = False comes, because the Play button must be clicked to start game after login
+            self.is_refilling = True
+            # gui.leftClick(session_expired_okay_button)
+            gui.leftClick(czech_lang_input_logouted)  # Czech lang select
+            time.sleep(1)
+            gui.leftClick(czech_lang_input_logouted.x, czech_lang_input_logouted.y + 120)  # English (United Kingdom select option)
+            time.sleep(5)
 
         # If we got somehow logouted out of any logic, try to log back in
         username_input = gui.locateCenterOnScreen(img_dir + "username_input.png", confidence=0.9)
