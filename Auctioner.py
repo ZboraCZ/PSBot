@@ -17,9 +17,10 @@ def thread_wait():
     return
 
 def thread_check_finished_auction():
+    global end_game
     pounder_finished_b = False
     harpoon_finished_b = False
-    while True:
+    while end_game == False:
         pounder_finished = gui.locateCenterOnScreen(img_dir + "pounder_finished.png")
         if pounder_finished:
             pounder_finished_b = True
@@ -28,7 +29,7 @@ def thread_check_finished_auction():
         if harpoon_finished:
             harpoon_finished_b = True
 
-        global end_game
+
         if pounder_finished_b and harpoon_finished_b:
             end_game = True
             gui.press("esc")
@@ -38,20 +39,25 @@ def thread_check_finished_auction():
 th = threading.Thread(target=thread_wait)
 th.start()
 
+# Create a Thread checking auction items ended
+th2 = threading.Thread(target=thread_check_finished_auction)
+th2.start()
+
 print("Auctioner started. Press esc to end")
 
 while end_game == False:
     found = False
-    pounder = gui.locateCenterOnScreen(img_dir + "18pounder-004.png")
+    pounder = gui.locateCenterOnScreen(img_dir + "pounder_auction_time.png")
     if pounder:
         found = True
         gui.leftClick(pounder.x + 267, pounder.y + 14)
 
-    harpoon = gui.locateCenterOnScreen(img_dir + "4harpoon-004.png")
+    harpoon = gui.locateCenterOnScreen(img_dir + "harpoon_auction_time.png")
     if harpoon:
         found = True
         gui.leftClick(harpoon.x + 267, harpoon.y + 14)
 
+    # Click to place where Reconnect button displays on idle
     if not found:
         gui.leftClick(663,442)
 

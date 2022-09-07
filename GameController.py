@@ -102,22 +102,32 @@ class GameController():
 
 
     def refill_cannonballs(self, cannonballs_location):
+        time.sleep(0.5)
         # Open menu
         gui.leftClick(cannonballs_location.x, cannonballs_location.y)
+        time.sleep(0.5)
         gui.moveTo(cannonballs_location.x, cannonballs_location.y - 44)
+        time.sleep(0.5)
         # Click buy button
         gui.leftClick(786, 725)
+        time.sleep(0.5)
         # Close menu
         gui.leftClick(cannonballs_location.x, cannonballs_location.y)
+        time.sleep(0.5)
 
     def refill_harpoons(self, harpoons_location):
+        time.sleep(0.5)
         # Open menu
         gui.leftClick(harpoons_location.x, harpoons_location.y)
+        time.sleep(0.5)
         gui.moveTo(harpoons_location.x, harpoons_location.y - 44)
+        time.sleep(0.5)
         # Click buy button
         gui.leftClick(826, 725)
+        time.sleep(0.5)
         # Close menu
         gui.leftClick(harpoons_location.x, harpoons_location.y)
+        time.sleep(0.5)
 
     def check_respawn(self):
         restore_icon = gui.locateCenterOnScreen(img_dir + "restore_ship_icon.png", confidence=0.8)
@@ -128,6 +138,7 @@ class GameController():
             gui.moveTo(restore_icon.x, restore_icon.y + 82)
             gui.leftClick()
             time.sleep(5)
+            self.check_correct_ammo_selected()
             gui.leftClick(545,745)  # Start Repair
             time.sleep(80)
             gui.leftClick(683,510) # SET SAIL button
@@ -144,6 +155,16 @@ class GameController():
             self.is_refilling = False
 
     def check_miscellaneous(self):
+
+        no_cannonballs_selected_icon = gui.locateCenterOnScreen(img_dir + "no_cannonballs_selected_icon.png")
+        if no_cannonballs_selected_icon:
+            self.is_refilling = True
+            gui.leftClick(no_cannonballs_selected_icon)
+            time.sleep(0.5)
+            gui.leftClick(no_cannonballs_selected_icon.x, no_cannonballs_selected_icon.y - 50) # Click stone cannonballs
+            time.sleep(0.5)
+            self.is_refilling = False
+
         okay_button = gui.locateCenterOnScreen(img_dir + "okay_icon.png")
         if okay_button:
             self.create_feed_image("New_achievement_probably")
@@ -184,7 +205,7 @@ class GameController():
             self.is_refilling = True
             self.create_feed_image("hard_disconnect")
             gui.leftClick(play_button)
-            time.sleep(10)
+            time.sleep(20)
             self.is_refilling = False
 
         play_button = gui.locateCenterOnScreen(img_dir + "Play_button_main_highlighted.png", confidence=0.9)
@@ -192,7 +213,18 @@ class GameController():
             self.is_refilling = True
             self.create_feed_image("hard_disconnect")
             gui.leftClick(play_button)
-            time.sleep(10)
+            time.sleep(20)
+            self.is_refilling = False
+
+        # We got black screen after login -> refresh usually works
+        black_screen_after_login = gui.locateCenterOnScreen(img_dir + "black_loading_screen.png")
+        if black_screen_after_login:
+            self.is_refilling = True
+            self.create_feed_image("black_screen_after_login")
+            gui.leftClick(30,9) # File button
+            time.sleep(1)
+            gui.leftClick(30, 52)  # Refresh page button
+            time.sleep(20)
             self.is_refilling = False
 
         close_icon_main_menu = gui.locateCenterOnScreen(img_dir + "Close_icon_main.png", confidence=0.9)
@@ -260,3 +292,22 @@ class GameController():
     def create_feed_image(self, event_keyword):
         now = datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
         gui.screenshot("Log\\Feed\\" + str(event_keyword) +"-" + str( now ).replace(":", "-") + ".png" )
+
+    def check_correct_ammo_selected(self):
+        stone_cannonballs_icon = gui.locateCenterOnScreen(img_dir + "stone_cannonballs_icon.png")
+        if not stone_cannonballs_icon:
+            self.is_refilling = True
+            gui.leftClick(603,705) # cannonballs icon
+            time.sleep(0.5)
+            gui.leftClick(603, 655)  # Stone cannonballs icon
+            time.sleep(0.5)
+            self.is_refilling = False
+
+        harpoon_icon = gui.locateCenterOnScreen(img_dir + "harpoon_icon.png")
+        if not harpoon_icon:
+            self.is_refilling = True
+            gui.leftClick(644, 705)  # harpoons icon
+            time.sleep(0.5)
+            gui.leftClick(644, 655)  # harpoons icon
+            time.sleep(0.5)
+            self.is_refilling = False

@@ -114,8 +114,9 @@ class ShipShooter(threading.Thread):
         if enemy_location:
             batteled = True
             self.GameController.is_fighting = True
-            gui.doubleClick(enemy_location)
-            battle_done = self.execute_aggr_fight(enemy_location)
+            if self.is_valid_click_location(enemy_location):
+                gui.doubleClick(enemy_location)
+                battle_done = self.execute_aggr_fight(enemy_location)
 
         if batteled:
             gui.press('num2')  # Repair
@@ -233,7 +234,8 @@ class ShipShooter(threading.Thread):
                 y_loc = game_screen_center_location.y - ( perfect_y_dist + (game_screen_center_location.y - enemy_location.y))
 
             travel_location = gui.Point(x_loc, y_loc)
-            gui.leftClick(travel_location)
+            if self.is_valid_click_location(travel_location.x, travel_location.y):
+                gui.leftClick(travel_location)
 
     def execute_aggr_fight(self, enemy_location):
         self.shoot(enemy_location)
@@ -261,30 +263,6 @@ class ShipShooter(threading.Thread):
                 continue
             else:
                 break
-
-    def execute_pass_fight(self, enemy_location):
-        # First move to enemy location as he can be far away
-        gui.leftClick(enemy_location)
-        self.time_travel(enemy_location)
-        # Now check if he is aggressive because we couldn't determine before
-        enemy_location = self.locate_aggressive_enemy_nearby()
-        if enemy_location:
-            while enemy_location:
-                battle_done = self.execute_aggr_fight(enemy_location)
-                enemy_location = self.locate_aggressive_enemy_nearby()
-        # No aggressive enemy, shoot passive enemy
-        else:
-            enemy_location = self.locate_passive_enemy_nearby()
-            if enemy_location:
-                self.shoot(enemy_location)
-                # Now he became aggressive after shooting, so aggressive fight began
-                while enemy_location:
-                    battle_done = self.execute_aggr_fight(enemy_location)
-                    enemy_location = self.locate_aggressive_enemy_nearby()
-                    if not enemy_location:
-                        enemy_location = self.locate_passive_enemy_nearby()
-                        if enemy_location:
-                            self.shoot(enemy_location)
 
     def shoot(self, enemy_location):
         center_location = self.get_enemy_center_location(enemy_location)
