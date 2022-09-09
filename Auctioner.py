@@ -11,9 +11,15 @@ nearby_coordinates = (395,175, 515, 415)
 end_game = False
 
 def thread_wait():
-    keyboard.wait('esc')
     global end_game
+    print("waiting thread")
+    while True:
+        if keyboard.read_key() == "esc" or end_game == True:
+            print("Game ended.")
+            break
+
     end_game = True
+    print("waiting thread ended")
     return
 
 def thread_check_finished_auction():
@@ -32,7 +38,7 @@ def thread_check_finished_auction():
 
         if pounder_finished_b and harpoon_finished_b:
             end_game = True
-            gui.press("esc")
+            gui.press("escape")
             return
 
 # Create a Thread with a function without any arguments

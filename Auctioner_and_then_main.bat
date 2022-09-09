@@ -1,4 +1,4 @@
 @echo off
-python Auctioner.py
-python main.py
+venv\Scripts\python.exe Auctioner.py
+venv\Scripts\python.exe main.py
 pause
