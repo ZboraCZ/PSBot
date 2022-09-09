@@ -38,14 +38,16 @@ class Mover(threading.Thread):
         random_dir_location = gui.Point(game_screen_center_location.x + x_magnifier,
                                         game_screen_center_location.y + y_magnifier)
         if not self.GameController.need_healing and not self.GameController.is_fighting and not self.GameController.is_looting and not self.GameController.is_refilling and time.time() - self.GameController.last_fought > 5:
-            gui.leftClick(random_dir_location)
-            self.time_travel(random_dir_location)
-            self.moved_previously = True
+            if not self.we_are_dead():
+                gui.leftClick(random_dir_location)
+                self.time_travel(random_dir_location)
+                self.moved_previously = True
 
     def time_travel(self, point):
         time.sleep(float(round((abs(point.x - 683) + abs(point.y - 384)) * 0.0045, 3)))
 
-
-
-
-
+    # Prevent clicking 500 diamonds repair by any means
+    def we_are_dead(self):
+        restore_icon = gui.locateCenterOnScreen(img_dir + "restore_ship_icon.png", confidence=0.8)
+        if restore_icon:
+            return True

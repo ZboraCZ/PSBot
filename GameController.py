@@ -2,6 +2,7 @@ import pyautogui
 import time
 import datetime
 import threading
+import pyperclip
 
 from Ship_Shooter import ShipShooter
 from Looter import Looter
@@ -26,6 +27,10 @@ class GameController():
         self.last_fought = time.time()
         self.need_healing = False
         self.time_respawned = time.time()
+        self.player_nickname = ""
+        self.player_password = ""
+
+        self.load_username_and_password()
 
         self.Ship_Shooter_Thread = ShipShooter("Ship_Shooter_Thread", 1, self)
         self.Looter_Thread = Looter("Looter_Thread", 2, self)
@@ -56,15 +61,28 @@ class GameController():
         self.Ship_Shooter_Thread.join()
 
 
+    def load_username_and_password(self):
+        f = open("My_Nickname_and_Password.txt", "r")
+        for i in range(0,1):
+            line = f.readline().strip()
+            if i == 0: # First line username
+                if not line == "":
+                    self.player_nickname = line
+            if i == 1: # Second line password
+                if not line == "":
+                    self.player_password = line
+        f.close()
+
+
     def check_health(self):
         if not self.need_healing:
             low_health_loc = gui.locateCenterOnScreen(img_dir + "low_health_indicator.png", confidence=0.9)
             if low_health_loc:
                 self.is_refilling = True
                 self.need_healing = True
-                pyautogui.keyDown('ctrl')  # hold down the shift key
-                pyautogui.press('num2')
-                pyautogui.keyUp('ctrl')  # hold down the shift key
+                gui.keyDown('ctrl')  # hold down the shift key
+                gui.press('num2')
+                gui.keyUp('ctrl')  # hold down the shift key
                 self.is_refilling = False
         else:
             high_health_loc = gui.locateCenterOnScreen(img_dir + "high_health_indicator.png")
@@ -249,9 +267,11 @@ class GameController():
             gui.leftClick(21,11) # File menu
             gui.leftClick(21,35) # Home button
             gui.leftClick(230,60) # Username Field
-            pyautogui.typewrite('ZboraCZ', interval=0.1)
+            pyperclip.copy(self.player_nickname)
+            gui.hotkey("ctrl", "v")
             gui.leftClick(340, 60)  # Password Field
-            pyautogui.typewrite('Jirka1997', interval=0.1)
+            pyperclip.copy(self.player_password)
+            gui.hotkey("ctrl", "v")
             gui.leftClick(460, 60)  # LOGIN button
 
         # Game logouted and GUI is switched to Czech for some reason, so switch to english
@@ -271,9 +291,11 @@ class GameController():
             # No is_refilling = False comes, because the Play button must be clicked to start game after login
             self.is_refilling = True
             gui.leftClick(username_input)
-            pyautogui.typewrite('ZboraCZ', interval=0.1)
+            pyperclip.copy(self.player_nickname)
+            gui.hotkey("ctrl", "v")
             gui.leftClick(340, 60)  # Password Field
-            pyautogui.typewrite('Jirka1997', interval=0.1)
+            pyperclip.copy(self.player_password)
+            gui.hotkey("ctrl", "v")
             gui.leftClick(460, 60)  # LOGIN button
 
         # If we log back in in the morning, Accept daily button must be clicked
@@ -282,6 +304,17 @@ class GameController():
             # No is_refilling = False comes, because the Play button must be clicked to start game after login
             self.is_refilling = True
             gui.leftClick(daily_bonus_btn)
+            self.is_refilling = False
+
+        # Internet connection lost -> refresh should work
+        no_internet_icon = gui.locateCenterOnScreen(img_dir + "no_internet_icon.png")
+        if no_internet_icon:
+            self.is_refilling = True
+            self.create_feed_image("internet_connection_lost")
+            gui.leftClick(30, 9)  # File button
+            time.sleep(1)
+            gui.leftClick(30, 52)  # Refresh page button
+            time.sleep(20)
             self.is_refilling = False
 
 
