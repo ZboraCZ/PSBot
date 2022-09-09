@@ -60,10 +60,9 @@ class GameController():
         self.Looter_Thread.join()
         self.Ship_Shooter_Thread.join()
 
-
     def load_username_and_password(self):
         f = open("My_Nickname_and_Password.txt", "r")
-        for i in range(0,1):
+        for i in range(0,2):
             line = f.readline().strip()
             if i == 0: # First line username
                 if not line == "":
@@ -292,10 +291,13 @@ class GameController():
             self.is_refilling = True
             gui.leftClick(username_input)
             pyperclip.copy(self.player_nickname)
+            time.sleep(0.5)
             gui.hotkey("ctrl", "v")
             gui.leftClick(340, 60)  # Password Field
             pyperclip.copy(self.player_password)
+            time.sleep(0.5)
             gui.hotkey("ctrl", "v")
+            time.sleep(0.5)
             gui.leftClick(460, 60)  # LOGIN button
 
         # If we log back in in the morning, Accept daily button must be clicked
