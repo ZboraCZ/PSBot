@@ -9,11 +9,11 @@ Nickname on first line.
 Password on second line.
 
 ## Disable all Effects in game:
-![Image System settings - Effects - Disable all](img\System_effects_settings.png)
+![Image System settings - Effects - Disable all](./img/System_effects_settings.png)
 
 ## Rearrange your Game HUD and windows same as on the screenshot:
 
-![Image - HUD placement](img\HUD_placement.png)
+![Image - HUD placement](./img/HUD_placement.png)
 
 # Running your bot
 Go to project root folder, open command prompt in that folder and run command:
