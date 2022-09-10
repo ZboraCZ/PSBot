@@ -42,11 +42,23 @@ while end_game == False:
         found = True
         gui.leftClick(corona_deck.x + 267, corona_deck.y + 14)
 
-    # Blood moon bulkhead
-    bloodmoon_bulkhead = gui.locateCenterOnScreen(img_dir + "blood_moon_bulkhead_auction_time.png")
-    if bloodmoon_bulkhead:
+    # Moonlight figurehead
+    moonlight_figurehead = gui.locateCenterOnScreen(img_dir + "moonlight_figurehead_auction_time.png")
+    if moonlight_figurehead:
         found = True
-        gui.leftClick(bloodmoon_bulkhead.x + 267, bloodmoon_bulkhead.y + 14)
+        gui.leftClick(moonlight_figurehead.x + 267, moonlight_figurehead.y + 14)
+
+    # Moonforged Anchor Weights
+    moonforged_anchor = gui.locateCenterOnScreen(img_dir + "moonforged_anchor_weights_auction_time.png")
+    if moonforged_anchor:
+        found = True
+        gui.leftClick(moonforged_anchor.x + 267, moonforged_anchor.y + 14)
+
+    # Blood moon bulkhead
+    #bloodmoon_bulkhead = gui.locateCenterOnScreen(img_dir + "blood_moon_bulkhead_auction_time.png")
+    #if bloodmoon_bulkhead:
+    #    found = True
+    #    gui.leftClick(bloodmoon_bulkhead.x + 267, bloodmoon_bulkhead.y + 14)
 
 
     # Blood moon deck - last because not so necessary
