@@ -62,10 +62,10 @@ while end_game == False:
 
 
     # Blood moon deck - last because not so necessary
-    bloodmoon_deck = gui.locateCenterOnScreen(img_dir + "blood_moon_deck_auction_time.png")
-    if bloodmoon_deck:
-        found = True
-        gui.leftClick(bloodmoon_deck.x + 267, bloodmoon_deck.y + 14)
+    #bloodmoon_deck = gui.locateCenterOnScreen(img_dir + "blood_moon_deck_auction_time.png")
+    #if bloodmoon_deck:
+    #    found = True
+    #    gui.leftClick(bloodmoon_deck.x + 267, bloodmoon_deck.y + 14)
 
     # Click to place where Reconnect button displays on idle
     if not found:
