@@ -37,10 +37,10 @@ while end_game == False:
         gui.leftClick(total_eclipse.x + 267, total_eclipse.y + 14)
 
     # Corona deck
-    corona_deck = gui.locateCenterOnScreen(img_dir + "corona_deck_auction_time.png")
-    if corona_deck:
-        found = True
-        gui.leftClick(corona_deck.x + 267, corona_deck.y + 14)
+    #corona_deck = gui.locateCenterOnScreen(img_dir + "corona_deck_auction_time.png")
+    #if corona_deck:
+    #    found = True
+    #    gui.leftClick(corona_deck.x + 267, corona_deck.y + 14)
 
     # Moonlight figurehead
     #moonlight_figurehead = gui.locateCenterOnScreen(img_dir + "moonlight_figurehead_auction_time.png")
