@@ -114,8 +114,14 @@ class ShipShooter(threading.Thread):
         if enemy_location:
             batteled = True
             self.GameController.is_fighting = True
-            if self.is_valid_click_location(enemy_location):
+            if self.is_valid_click_location(enemy_location.x, enemy_location.y):
                 gui.doubleClick(enemy_location)
+                gui.press('num3')  # Shoot Thunder rocket
+                # Davy Jones - Give damage
+                pyautogui.keyDown('ctrl')  # hold down the shift key
+                pyautogui.press('num1')
+                pyautogui.keyUp('ctrl')
+                time.sleep(0.2)
                 battle_done = self.execute_aggr_fight(enemy_location)
 
         if batteled:
