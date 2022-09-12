@@ -189,9 +189,15 @@ class GameController():
             gui.leftClick(okay_button)
             self.is_refilling = False
 
+        # For example opened map premium popup displays - 2 closes must be performed, thats why there is while
         close_button = gui.locateCenterOnScreen(img_dir + "close_button.png")
         if close_button:
-            gui.leftClick(close_button)
+            self.is_refilling = True
+            while close_button:
+                gui.leftClick(close_button)
+                time.sleep(0.5)
+                close_button = gui.locateCenterOnScreen(img_dir + "close_button.png")
+            self.is_refilling = False
 
         feed_icons = gui.locateCenterOnScreen(img_dir + "Feed_window_icon.png", confidence=0.9)
         if feed_icons:
