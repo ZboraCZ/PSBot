@@ -309,10 +309,12 @@ class GameController():
         # If we log back in in the morning, Accept daily button must be clicked
         daily_bonus_btn = gui.locateCenterOnScreen(img_dir + "accept_daily_bonus_btn.png")
         if daily_bonus_btn:
-            # No is_refilling = False comes, because the Play button must be clicked to start game after login
-            self.is_refilling = True
-            gui.leftClick(daily_bonus_btn)
-            self.is_refilling = False
+            # Avoid arena battle invitation accept button in top right corner
+            if not (daily_bonus_btn.x > 1137 and daily_bonus_btn.y < 240):
+                # No is_refilling = False comes, because the Play button must be clicked to start game after login
+                self.is_refilling = True
+                gui.leftClick(daily_bonus_btn)
+                self.is_refilling = False
 
         # Internet connection lost -> refresh should work
         no_internet_icon = gui.locateCenterOnScreen(img_dir + "no_internet_icon.png")
