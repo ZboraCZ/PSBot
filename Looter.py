@@ -5,7 +5,7 @@ import concurrent.futures
 #from GameController import GameController
 
 gui = pyautogui
-img_dir = 'img/'
+img_dir = 'img/Halloween/'
 top_gamescreen_first_pixel = 63
 game_screen_center_location = gui.Point(x=683, y=410)
 nearby_coordinates = (395,175, 515, 415)
@@ -41,6 +41,17 @@ class Looter(threading.Thread):
             self.GameController.is_looting = False
 
     def find_chest(self):
+
+        # if self.GameController.need_healing:
+        #     locs_list1 = pyautogui.locateAllOnScreen(img_dir + "LootBox1.png", confidence=0.7, region=nearby_coordinates)
+        #     locs_list2 = pyautogui.locateAllOnScreen(img_dir + "LootBox2.png", confidence=0.7, region=nearby_coordinates)
+        #     locs_list3 = pyautogui.locateAllOnScreen(img_dir + "LootBox3.png", confidence=0.7, region=nearby_coordinates)
+        # else:
+        #     locs_list1 = pyautogui.locateAllOnScreen(img_dir + "LootBox1.png", confidence=0.7)
+        #     locs_list2 = pyautogui.locateAllOnScreen(img_dir + "LootBox2.png", confidence=0.7)
+        #     locs_list3 = pyautogui.locateAllOnScreen(img_dir + "LootBox3.png", confidence=0.7)
+
+        # Halloween changed lootboxes
         if self.GameController.need_healing:
             locs_list1 = pyautogui.locateAllOnScreen(img_dir + "LootBox1.png", confidence=0.7, region=nearby_coordinates)
             locs_list2 = pyautogui.locateAllOnScreen(img_dir + "LootBox2.png", confidence=0.7, region=nearby_coordinates)
