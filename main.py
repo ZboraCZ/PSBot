@@ -13,7 +13,7 @@ top_gamescreen_first_pixel = 63
 game_screen_center_location = gui.Point(x=683, y=410)
 
 print("Bot starting up: 20 seconds.")
-#time.sleep(20)
+time.sleep(20)
 
 Game_Controller = GameController()
 
