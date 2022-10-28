@@ -90,8 +90,33 @@ class ShipShooter(threading.Thread):
 
 
     def fight_nearby(self):
-        # Fight aggr enemies
         batteled = False
+
+        # Fight boss
+        enemy_location = self.find_boss()
+        if enemy_location:
+            batteled = True
+            self.GameController.is_fighting = True
+            if self.is_valid_click_location(enemy_location.x, enemy_location.y):
+                gui.doubleClick(enemy_location)
+                gui.press('num3')  # Shoot Thunder rocket
+                # Davy Jones - Give damage
+                pyautogui.keyDown('ctrl')  # hold down the shift key
+                pyautogui.press('num1')
+                pyautogui.keyUp('ctrl')
+                time.sleep(0.2)
+                self.use_ability()
+                battle_done = self.execute_boss_fight(enemy_location)
+
+        if batteled:
+            gui.press('num2')  # Repair
+            self.GameController.last_fought = time.time()
+            self.GameController.is_fighting = False
+
+        if batteled or self.GameController.is_looting or self.GameController.is_refilling:
+            return True
+
+        # Fight aggr enemies
         enemy_location = self.locate_aggressive_enemy_nearby()
         if enemy_location:
             self.GameController.is_fighting = True
@@ -108,30 +133,6 @@ class ShipShooter(threading.Thread):
 
         if batteled or self.GameController.is_looting or self.GameController.is_refilling:
             return True
-
-        # Fight boss
-        enemy_location = self.find_boss()
-        if enemy_location:
-            batteled = True
-            self.GameController.is_fighting = True
-            if self.is_valid_click_location(enemy_location.x, enemy_location.y):
-                gui.doubleClick(enemy_location)
-                gui.press('num3')  # Shoot Thunder rocket
-                # Davy Jones - Give damage
-                pyautogui.keyDown('ctrl')  # hold down the shift key
-                pyautogui.press('num1')
-                pyautogui.keyUp('ctrl')
-                time.sleep(0.2)
-                battle_done = self.execute_boss_fight(enemy_location)
-
-        if batteled:
-            gui.press('num2')  # Repair
-            self.GameController.last_fought = time.time()
-            self.GameController.is_fighting = False
-
-        if batteled or self.GameController.is_looting or self.GameController.is_refilling:
-            return True
-
 
         # Locate and fight passive enemy
         # Here not while because we fight only once and better check again for things
@@ -151,16 +152,24 @@ class ShipShooter(threading.Thread):
             return True
 
     def fight_far(self):
-        # Fight aggr enemies
         batteled = False
-        enemy_location = self.locate_aggressive_enemy()
-        if enemy_location:
-            self.GameController.is_fighting = True
-            batteled = True
 
-        while enemy_location:
-            battle_done = self.execute_aggr_fight(enemy_location)
-            enemy_location = self.locate_aggressive_enemy()
+        # Fight boss
+        enemy_location = self.find_boss()
+        if enemy_location:
+            batteled = True
+            self.GameController.is_fighting = True
+            if self.is_valid_click_location(enemy_location.x, enemy_location.y):
+                gui.doubleClick(enemy_location)
+                gui.leftClick(gui.Point(enemy_location.x, enemy_location.y - 60))
+                gui.press('num3')  # Shoot Thunder rocket
+                # Davy Jones - Give damage
+                pyautogui.keyDown('ctrl')  # hold down the shift key
+                pyautogui.press('num1')
+                pyautogui.keyUp('ctrl')
+                time.sleep(0.2)
+                self.use_ability()
+                battle_done = self.execute_boss_fight(enemy_location)
 
         if batteled:
             gui.press('num2')  # Repair
@@ -170,20 +179,15 @@ class ShipShooter(threading.Thread):
         if batteled or self.GameController.is_looting or self.GameController.is_refilling:
             return True
 
-        # Fight boss
-        enemy_location = self.find_boss()
+        # Fight aggr enemies
+        enemy_location = self.locate_aggressive_enemy()
         if enemy_location:
-            batteled = True
             self.GameController.is_fighting = True
-            if self.is_valid_click_location(enemy_location.x, enemy_location.y):
-                gui.doubleClick(enemy_location)
-                gui.press('num3')  # Shoot Thunder rocket
-                # Davy Jones - Give damage
-                pyautogui.keyDown('ctrl')  # hold down the shift key
-                pyautogui.press('num1')
-                pyautogui.keyUp('ctrl')
-                time.sleep(0.2)
-                battle_done = self.execute_boss_fight(enemy_location)
+            batteled = True
+
+        while enemy_location:
+            battle_done = self.execute_aggr_fight(enemy_location)
+            enemy_location = self.locate_aggressive_enemy()
 
         if batteled:
             gui.press('num2')  # Repair
@@ -276,10 +280,6 @@ class ShipShooter(threading.Thread):
                 break
 
     def execute_boss_fight(self, enemy_location):
-        self.shoot(enemy_location)
-        self.use_ability()
-        self.keep_distance_from_enemy(enemy_location)
-
         # Check if we still have enemy near last position and continue fighting
         boss_location = self.find_boss()
         boss_lives = False
@@ -287,18 +287,20 @@ class ShipShooter(threading.Thread):
             boss_lives = True
             posX = boss_location.x
             posY = boss_location.y
+        iter_shoot_check = 0
         while boss_lives:
-            boss_lives = False
-            self.shoot(gui.Point(posX, posY))
-            gui.leftClick(gui.Point(posX, posY - 60))
-            if boss_lives:
-                boss_location = self.find_boss()
-                if boss_location:
-                    posX = boss_location.x
-                    posY = boss_location.y
-                    boss_lives = True
+            iter_shoot_check += 1
+            if iter_shoot_check == 300:
+                self.shoot(gui.Point(posX, posY))
+                iter_shoot_check = 0
+            gui.leftClick(gui.Point(posX, posY - 60)) # keep with boss at all times
+            boss_location = self.find_boss()
+            if boss_location:
+                posX = boss_location.x
+                posY = boss_location.y
             else:
-                break
+                boss_lives = False
+
     def shoot(self, enemy_location):
         center_location = self.get_enemy_center_location(enemy_location)
 
