@@ -6,7 +6,7 @@ calc wait time to loot (sec): abs(199 - 640) + abs(236 - 405) * 0.0049
 610*x = 3
 
 Execution times:
-m
+
 EasyOCR:
 Execution time (s): 3.7159842000037315
 Execution time (s): 3.72984649999853
@@ -15,5 +15,8 @@ Execution time (s): 3.722388599999249
 
 
 Pytesseract:
-
+Execution time (s): 0.6
+Execution time (s): 0.3
+Execution time (s): 0.5
+Execution time (s): 0.4
 

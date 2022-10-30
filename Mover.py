@@ -37,7 +37,7 @@ class Mover(threading.Thread):
         y_magnifier = randint(-245, 245)
         random_dir_location = gui.Point(game_screen_center_location.x + x_magnifier,
                                         game_screen_center_location.y + y_magnifier)
-        if not self.GameController.need_healing and not self.GameController.is_fighting and not self.GameController.is_looting and not self.GameController.is_refilling and time.time() - self.GameController.last_fought > 5:
+        if not self.GameController.shooting_boss and not self.GameController.need_healing and not self.GameController.is_fighting and not self.GameController.is_looting and not self.GameController.is_refilling and time.time() - self.GameController.last_fought > 5:
             if not self.we_are_dead():
                 gui.leftClick(random_dir_location)
                 self.time_travel(random_dir_location)

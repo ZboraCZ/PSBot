@@ -31,6 +31,7 @@ class ShipShooter(threading.Thread):
         self.ability_num = 0
         self.healing_movement = "up"
         self.preventively_moved_while_healing = False
+        self.last_time_boss_spotted = None
 
     # Overrriding of run() method in the subclass
     def run(self):
@@ -60,7 +61,33 @@ class ShipShooter(threading.Thread):
 
     def fight_in_heal_state(self):
         batteled = False
+
+        if self.GameController.shooting_boss:
+            boss_location = self.find_boss()
+            if boss_location:
+                batteled = True
+                self.GameController.is_fighting = True
+                self.GameController.shooting_boss = True
+                self.last_time_boss_spotted = time.time()
+                if self.is_valid_click_location(boss_location.x, boss_location.y):
+                    gui.doubleClick(boss_location)
+                    gui.press('num3')  # Shoot Thunder rocket
+                    # Davy Jones - Give damage
+                    pyautogui.keyDown('ctrl')  # hold down the shift key
+                    pyautogui.press('num1')
+                    pyautogui.keyUp('ctrl')
+                    time.sleep(0.2)
+                    self.use_ability()
+                    battle_done = self.execute_boss_fight(boss_location)
+            else:
+                self.GameController.is_fighting = False
+                self.GameController.shooting_boss = False
+
+        if self.GameController.shooting_boss or time.time() - self.last_time_boss_spotted <= 5:
+            return
+
         enemy_location = self.locate_aggressive_enemy_nearby()
+
         if enemy_location:
             self.GameController.is_fighting = True
             batteled = True
@@ -97,6 +124,8 @@ class ShipShooter(threading.Thread):
         if enemy_location:
             batteled = True
             self.GameController.is_fighting = True
+            self.GameController.shooting_boss = True
+            self.last_time_boss_spotted = time.time()
             if self.is_valid_click_location(enemy_location.x, enemy_location.y):
                 gui.doubleClick(enemy_location)
                 gui.press('num3')  # Shoot Thunder rocket
@@ -107,6 +136,12 @@ class ShipShooter(threading.Thread):
                 time.sleep(0.2)
                 self.use_ability()
                 battle_done = self.execute_boss_fight(enemy_location)
+        else:
+            self.GameController.is_fighting = False
+            self.GameController.shooting_boss = False
+
+        if self.GameController.shooting_boss or time.time() - self.last_time_boss_spotted <= 5:
+            return True
 
         if batteled:
             gui.press('num2')  # Repair
@@ -159,6 +194,7 @@ class ShipShooter(threading.Thread):
         if enemy_location:
             batteled = True
             self.GameController.is_fighting = True
+            self.GameController.shooting_boss = True
             if self.is_valid_click_location(enemy_location.x, enemy_location.y):
                 gui.doubleClick(enemy_location)
                 gui.leftClick(gui.Point(enemy_location.x, enemy_location.y - 60))
@@ -170,6 +206,12 @@ class ShipShooter(threading.Thread):
                 time.sleep(0.2)
                 self.use_ability()
                 battle_done = self.execute_boss_fight(enemy_location)
+        else:
+            self.GameController.is_fighting = False
+            self.GameController.shooting_boss = False
+
+        if self.GameController.shooting_boss or time.time() - self.last_time_boss_spotted <= 5:
+            return True
 
         if batteled:
             gui.press('num2')  # Repair
@@ -285,15 +327,19 @@ class ShipShooter(threading.Thread):
         boss_lives = False
         if boss_location:
             boss_lives = True
+            self.GameController.shooting_boss = True
             posX = boss_location.x
             posY = boss_location.y
+        else:
+            self.GameController.shooting_boss = False
         iter_shoot_check = 0
         while boss_lives:
             iter_shoot_check += 1
-            if iter_shoot_check == 300:
+            if iter_shoot_check == 5:
                 self.shoot(gui.Point(posX, posY))
                 iter_shoot_check = 0
-            gui.leftClick(gui.Point(posX, posY - 60)) # keep with boss at all times
+            if self.is_valid_click_location(center_location.x, center_location.y):
+                gui.leftClick(gui.Point(posX - 60, posY)) # keep with boss at all times
             boss_location = self.find_boss()
             if boss_location:
                 posX = boss_location.x

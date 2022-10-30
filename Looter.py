@@ -33,7 +33,7 @@ class Looter(threading.Thread):
         chest_location = self.find_chest()
         if chest_location is not None:
             self.GameController.is_looting = True
-            if self.GameController.is_fighting or self.GameController.is_refilling:
+            if self.GameController.shooting_boss or self.GameController.is_fighting or self.GameController.is_refilling:
                 return
             pyautogui.leftClick(chest_location)
             time.sleep(self.calculate_travel_wait_time(chest_location))

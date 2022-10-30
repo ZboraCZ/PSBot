@@ -21,6 +21,7 @@ class GameController():
     def __init__(self):
         self.performing_action = False
         self.is_fighting = False
+        self.shooting_boss = False
         self.is_looting = False
         self.is_refilling = False
         self.game_exited = False
