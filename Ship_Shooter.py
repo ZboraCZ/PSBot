@@ -31,7 +31,7 @@ class ShipShooter(threading.Thread):
         self.ability_num = 0
         self.healing_movement = "up"
         self.preventively_moved_while_healing = False
-        self.last_time_boss_spotted = None
+        self.last_time_boss_spotted = 999.0
 
     # Overrriding of run() method in the subclass
     def run(self):
@@ -338,8 +338,8 @@ class ShipShooter(threading.Thread):
             if iter_shoot_check == 5:
                 self.shoot(gui.Point(posX, posY))
                 iter_shoot_check = 0
-            if self.is_valid_click_location(center_location.x, center_location.y):
-                gui.leftClick(gui.Point(posX - 60, posY)) # keep with boss at all times
+            if self.is_valid_click_location(posX - 80, posY):
+                gui.leftClick(gui.Point(posX - 80, posY)) # keep with boss at all times
             boss_location = self.find_boss()
             if boss_location:
                 posX = boss_location.x
@@ -368,7 +368,6 @@ class ShipShooter(threading.Thread):
     def find_boss(self):
         boss_location = gui.locateCenterOnScreen(img_dir + "BossLabel.png", confidence=0.7)
         if boss_location:
-            gui.leftClick(boss_location)
             return gui.Point(boss_location.x, boss_location.y + 60)
         return None
 
